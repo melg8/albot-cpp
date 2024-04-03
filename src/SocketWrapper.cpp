@@ -1,7 +1,8 @@
 #include "albot/SocketWrapper.hpp"
-#include "albot/MovementMath.hpp"
-#include <regex>
 #include <algorithm>
+#include <iostream>
+#include <regex>
+#include "albot/MovementMath.hpp"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/async.h>
@@ -22,14 +23,17 @@ SocketWrapper::SocketWrapper(std::string characterId, std::string fullUrl, Bot& 
     // In order to faciliate for websocket connection, a special URL needs to be used.
     // By adding this, the connection can be established as a websocket connection.
     // A real socket.io client likely uses this or something similar internally
-    this->mLogger = spdlog::stdout_color_mt(player.info.character->name + ":SocketWrapper");
+    this->mLogger =
+        spdlog::stdout_color_mt(player.info.character->name + ":SocketWrapper");
+    fullUrl = "host.docker.internal:8022";
+    std::cout << "full URL " << fullUrl << std::endl;
     fullUrl += "/socket.io/?EIO=4&transport=websocket";
-    if (fullUrl.find("wss://") == std::string::npos) {
-        this->webSocket.setUrl("wss://" + fullUrl);
+    if (fullUrl.find("ws://") == std::string::npos) {
+      this->webSocket.setUrl("ws://" + fullUrl);
     } else {
-        this->webSocket.setUrl(fullUrl);
+      this->webSocket.setUrl(fullUrl);
     }
-    this->webSocket.disableAutomaticReconnection(); // turn off
+    this->webSocket.disableAutomaticReconnection();  // turn off
     this->pingInterval = 4000;
     lastPing = std::chrono::high_resolution_clock::now();
 
